@@ -11,14 +11,6 @@ export default function Form() {
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
-		const response = await fetch('http://localhost:8000/analyze', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ text: url })
-		});
-		const data = await response.json();
-		setResult(data);
-		
 		setLoading(true); // wait for it to load, do a manual suspense 
 		setError(null);
 
