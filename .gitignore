@@ -1,0 +1,74 @@
+# Created by venv; see https://docs.python.org/3/library/venv.html
+# ==========================
+# Python general
+# ==========================
+# .gitignore
+venv/
+.env
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+env.bak/
+venv.bak/
+
+# ==========================
+# Virtual environments
+# ==========================
+# (Already covered above)
+
+# ==========================
+# dotenv files
+# ==========================
+.env
+.env.local
+.env.*.local
+
+# ==========================
+# Jupyter notebooks
+# ==========================
+.ipynb_checkpoints/
+
+# ==========================
+# OS files
+# ==========================
+.DS_Store
+Thumbs.db
+
+# ==========================
+# Build/dist files
+# ==========================
+build/
+dist/
+*.egg-info/
+
+# ==========================
+# Testing
+# ==========================
+.coverage
+pytest_cache/
+htmlcov/
+
+# ==========================
+# Logs
+# ==========================
+*.log
+
+# ==========================
+# git backups & patches
+# ==========================
+*.orig
+*.rej
+*.bak
+
+
+****REMOVED***
+==>
+
+***REMOVED***
+==>
