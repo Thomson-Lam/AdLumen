@@ -15,27 +15,59 @@ export default function Form() {
 		});
 		const data = await response.json();
 		setResult(data);
-	};
+		
+		setLoading(true); // wait for it to load, do a manual suspense 
+		setError(null);
 
-	return (
-		<>
-			<form onSubmit={handleSubmit}>
+		try {
+			const response = await fetch('http://localhost:8000/analyze', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ url })
+			});
+
+			if (!response.ok) {
+				throw new Error(`Server error:  ${response.status}`);
+			}
+
+			// display the data; TODO: Change the format of data displayed, map it and make it look nice! 
+			const data = await response.json();
+			setResult(data); 
+		} catch (err) {
+			setError(err.message); // render error message 
+		} finally {
+			setLoading(false);
+		}
+		
+	}
+
+	return(
+			<>
+			<form onSubmit={handleSubmit} class="flex flex-row gap-x-2 justify-center items-center mb-10 w-[90vw] h-[10vh]">
 				<input
 					type="url"
 					value={url}
 					onChange={(e) => setUrl(e.target.value)}
 					placeholder="Enter URL"
+					required 
+					class="px-2 w-full h-full text-xl text-white rounded-lg border border-white transition duration-300 ease-in-out focus:text-black focus:bg-white focus:ring focus:ring-amber-500"
 				/>
-				<button type="submit">Submit</button>
+				<button type="submit" class="ml-5 transition transform hover:scale-110">
+					<Send size={60} color="white" />
+				</button>
 			</form>
 
+		 	{loading && <p>Loading...</p>}
+      			{error && <p className="text-red-500">Error: {error}</p>}
+			
 			{result && (
 				<div>
-					<p>Link: {result.link}</p>
-					<p>Confidence: {result.confidence_score}</p>
-					<p>Explanation: {result.explanation}</p>
+				<p>{result.response}</p>	
 				</div>
 			)}
 		</>
+	
+
+
 	);
 }
