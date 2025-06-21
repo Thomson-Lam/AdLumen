@@ -1,5 +1,5 @@
 ---
-import Welcome from '../components/Welcome.astro';
+//import Welcome from '../components/Welcome.astro';
 import Layout from '../layouts/Layout.astro';
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
@@ -7,5 +7,12 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout>
-	<Welcome />
+	<div class="w-full h-screen flex flex-col items-center justify-center bg-red-700 gap-x-2">
+		<div id="swap" class="mb-4"></div>
+		<form hx-post="/analyze" hx-target="#swap">
+			<input name="url" placeholder="Enter URL" 
+				class="w-80 h-[2rem] mx-auto bg-white rounded-lg"/>
+			<button type="submit" class="bg-white rounded-lg p-2">Submit</button>
+		</form>
+	</div>
 </Layout>
