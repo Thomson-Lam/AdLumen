@@ -21,6 +21,8 @@ export default defineConfig({
 		rollupOptions: {
 			input: {
 				main: './index.html',
+				background: 'src/utils/background.ts',
+				content: 'src/utils/content.ts',
 			},
 		},
 	},
