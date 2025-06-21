@@ -9,7 +9,7 @@ import Layout from '../layouts/Layout.astro';
 <Layout>
 	<div class="w-full h-screen flex flex-col items-center justify-center bg-red-700 gap-x-2">
 		<div id="swap" class="mb-4"></div>
-		<form hx-post="/analyze" hx-target="#swap">
+		<form method="post" hx-post="http://localhost:8000/analyze" hx-target="#swap">
 			<input name="url" placeholder="Enter URL" 
 				class="w-80 h-[2rem] mx-auto bg-white rounded-lg"/>
 			<button type="submit" class="bg-white rounded-lg p-2">Submit</button>
