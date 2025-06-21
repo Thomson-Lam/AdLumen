@@ -24,7 +24,7 @@ app.add_middleware(
 
 # Request model
 class AnalysisRequest(BaseModel):
-    url: str
+    url: str = None
 
 # Endpoint to analyze a URL for AI-generated content
 @app.post("/analyze")
@@ -63,7 +63,7 @@ async def analyze_url(request: AnalysisRequest):
             model="gemini-2.5-flash",
             contents=prompt,
         )
-        results = json.loads(gemini_response.text)
+        # results = json.loads(gemini_response.text)
     except json.JSONDecodeError:
         raise HTTPException(status_code=500, detail="Failed to parse Gemini API response")
     except Exception as e:
@@ -72,9 +72,9 @@ async def analyze_url(request: AnalysisRequest):
     # Return the response
     return {
         "url": url,
-        "results": results,
+        "response": gemini_response.text,
     }
-    
+
 @app.get("/connection")
 async def connection():
     return {"status": "connected"}
