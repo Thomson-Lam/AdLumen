@@ -1,6 +1,7 @@
 
 // src/components/SubmitForm.jsx
 import { useState } from 'react';
+import { Send } from 'lucide-react';
 
 export default function Form() {
 	const [url, setUrl] = useState("");

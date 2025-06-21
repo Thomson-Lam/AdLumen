@@ -15,6 +15,7 @@
     "@types/react-dom": "^19.1.6",
     "astro": "^5.10.0",
     "htmx.org": "^2.0.5",
+    "lucide-react": "^0.522.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.1.10"
