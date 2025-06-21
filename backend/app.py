@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware 
+from google import genai
+client = genai.Client(api_key="***REMOVED***")
 
 app = FastAPI()
 
@@ -17,20 +19,6 @@ app.add_middleware(
 class AnalysisRequest(BaseModel):
     url: str
 
-# Endpoint to analyze a URL for AI-generated content
-@app.post("/analyze")
-async def analyze_url(request: AnalysisRequest):
-    url = request.url
-    is_ai_generated = False
-    confidence_score = 0.0
-    explanation = "Pending AI detection"
-
-    return {
-        "url": url,
-        "is_ai_generated": is_ai_generated,
-        "confidence_score": confidence_score,
-        "explanation": explanation,
-    }
 
 @app.get("/connection")
 async def connection():
@@ -45,36 +33,10 @@ async def results():
         ]
     }
 
-url = "https://en.wikipedia.org/wiki/Ferrari_F80"
-
-    source = requests.get(url)
-
-    if source.status_code == 200:
-        html_content = source.text
-        
-        prompt = f"""
-         {html_content}
-        Extract all relevant information and return the result as a JSON object.
-
-         """
-
-        response = client.models.generate_content(model="gemini-2.5-flash",
-        contents=prompt,
-        config=types.GenerateContentConfig(
-        thinking_config=types.ThinkingConfig(thinking_budget=0) # Disables thinking
-        ),)
-        print(response.text)
-
-    else:
-        print("failed to get HTML")
-
 
 #### this is the same as above but merged see if u can make ot work or i will do later 
 
 import requests
-
-# Import Gemini client and necessary classes
-from your_gemini_module import client, types  
 
 class AnalysisRequest(BaseModel):
     url: str
