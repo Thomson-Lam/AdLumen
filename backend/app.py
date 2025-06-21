@@ -1,7 +1,9 @@
 from fastapi import FastAPI
+import requests
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware 
 from google import genai
+<<<<<<< HEAD
 from pymongo import MongoClient
 
 # Connect to your database
@@ -10,6 +12,11 @@ client = MongoClient("***REMOVED***")  # or your Atlas URI
 
 db = client["ai_analysis_db"]
 collection = db["results"]
+=======
+from google.genai import types 
+import os 
+from dotenv import load_dotenv 
+>>>>>>> c724143 (using backend with dotenv)
 
 app = FastAPI()
 
@@ -24,7 +31,44 @@ app.add_middleware(
 
 
 class AnalysisRequest(BaseModel):
-    url: str
+    url: str = None
+
+# Endpoint to analyze a URL for AI-generated content
+@app.post("/analyze")
+async def analyze_url(request: AnalysisRequest):
+    load_dotenv()
+    API_KEY = os.environ.get("GEMINI_API_KEY")
+    client = genai.Client(api_key=API_KEY)
+    url = request.url
+    is_ai_generated = False
+    confidence_score = 0.0
+    explanation = "Pending AI detection"
+
+    source = requests.get(url)
+
+    if source.status_code == 200:
+        html_content = source.text
+        prompt = f"""
+        {html_content}
+
+        INSERT PROMPT HERE """
+
+        res = client.models.generate_content(model="gemini-2.5-flash", contents=prompt,
+        config=types.GenerateContentConfig(
+        thinking_config=types.ThinkingConfig(thinking_budget=0) # Disables thinking
+        ),)
+
+        return {
+            "url": url,
+            "response": res.text,
+        }
+
+    else:
+        return {
+            "url": url,
+            "response": "failed to get HTML."
+        }
+        
 
 
 @app.get("/connection")
@@ -41,58 +85,3 @@ async def results():
     }
 
 
-#### this is the same as above but merged see if u can make ot work or i will do later 
-
-import requests
-
-class AnalysisRequest(BaseModel):
-    url: str
-
-
-# 2️⃣ POST Route
-@app.post("/analyze")
-async def analyze_url(request: AnalysisRequest):
-    url = request.url
-
-    # 3️⃣ Get the page
-    source = requests.get(url)
-
-    if source.status_code == 200:
-        html_content = source.text
-
-        # 4️⃣ Build the prompt
-        prompt = f"""
-        {html_content}
-        
-        Extract all relevant information and return the result should be a JSON object with the following keys:
-        - url: the URL of the page
-        - results: the extracted information from the page
-        - image : the URL of the image on the page
-        """
-        # call Gemini
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                thinking_config=types.ThinkingConfig(thinking_budget=0)  # Disables thinking
-            ),
-        )
-        result = response.text
-        response = model.generate_content(prompt)
-        try:
-            results = json.loads(response.text)  # Parse Gemini's reply
-        except json.JSONDecodeError:
-            results = {"error": "failed to parse JSON", "raw": response.text}
-
-       # Save results
-    inserted_id = collection.insert_one({
-        "url": url,
-        "results": results
-    }).inserted_id
-
-    # ✅ Final return goes INSIDE the async method
-    return {
-        "url": url,
-        "results": results,
-        "database_id": str(inserted_id)
-    }
