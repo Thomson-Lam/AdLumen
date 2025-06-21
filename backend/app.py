@@ -1,22 +1,12 @@
+
 from fastapi import FastAPI
 import requests
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware 
 from google import genai
-<<<<<<< HEAD
-from pymongo import MongoClient
-
-# Connect to your database
-client = genai.Client(api_key="***REMOVED***")
-client = MongoClient("***REMOVED***")  # or your Atlas URI
-
-db = client["ai_analysis_db"]
-collection = db["results"]
-=======
 from google.genai import types 
 import os 
 from dotenv import load_dotenv 
->>>>>>> c724143 (using backend with dotenv)
 
 app = FastAPI()
 
