@@ -1,6 +1,6 @@
-
 // src/components/SubmitForm.jsx
 import { useState } from 'react';
+import { Send } from 'lucide-react';
 
 export default function Form() {
 	const [url, setUrl] = useState("");
@@ -41,15 +41,18 @@ export default function Form() {
 
 	return (
 		<>
-			<form onSubmit={handleSubmit}>
+			<form onSubmit={handleSubmit} class="flex flex-row gap-x-2 justify-center items-center mb-10 w-[90vw] h-[10vh]">
 				<input
 					type="url"
 					value={url}
 					onChange={(e) => setUrl(e.target.value)}
 					placeholder="Enter URL"
 					required 
+					class="px-2 w-full h-full text-xl text-white rounded-lg border border-white transition duration-300 ease-in-out focus:text-black focus:bg-white focus:ring focus:ring-amber-500"
 				/>
-				<button type="submit">Submit</button>
+				<button type="submit" class="ml-5 transition transform hover:scale-110">
+					<Send size={60} color="white" />
+				</button>
 			</form>
 
 		 	{loading && <p>Loading...</p>}
