@@ -6,6 +6,8 @@ import { Send } from 'lucide-react';
 export default function Form() {
 	const [url, setUrl] = useState("");
 	const [result, setResult] = useState(null);
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState(null);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
