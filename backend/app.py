@@ -2,14 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware 
 from google import genai
-from pymongo import MongoClient
-
-# Connect to your database
 client = genai.Client(api_key="AIzaSyDZZ2FUI5Gm493WRJ0u8uCZqhpXlD07Nv0")
-client = MongoClient("mongodb+srv://hleite:miau@cluster0.h37d1rv.mongodb.net/")  # or your Atlas URI
-
-db = client["ai_analysis_db"]
-collection = db["results"]
 
 app = FastAPI()
 
@@ -63,13 +56,9 @@ async def analyze_url(request: AnalysisRequest):
         # 4️⃣ Build the prompt
         prompt = f"""
         {html_content}
-        
-        Extract all relevant information and return the result should be a JSON object with the following keys:
-        - url: the URL of the page
-        - results: the extracted information from the page
-        - image : the URL of the image on the page
+        Extract all relevant information and return the result as a JSON object.
         """
-        # call Gemini
+        # 5️⃣ Call Gemini
         response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
@@ -78,21 +67,15 @@ async def analyze_url(request: AnalysisRequest):
             ),
         )
         result = response.text
-        response = model.generate_content(prompt)
-        try:
-            results = json.loads(response.text)  # Parse Gemini's reply
-        except json.JSONDecodeError:
-            results = {"error": "failed to parse JSON", "raw": response.text}
 
-       # Save results
-    inserted_id = collection.insert_one({
-        "url": url,
-        "results": results
-    }).inserted_id
-
-    # ✅ Final return goes INSIDE the async method
-    return {
-        "url": url,
-        "results": results,
-        "database_id": str(inserted_id)
-    }
+        # 6️⃣ Return the result
+        return {
+            "url": url,
+            "results": result
+        }
+    else:
+        return {
+            "url": url,
+            "error": "failed to get HTML",
+            "status_code": source.status_code
+        }
