@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from 'react';
+import './App.css';
+
+// Define the type of messages exchanged
+type Message =
+| { type: "AD_STATUS"; adActive: boolean }
+| { type: "QUERY_AD_STATUS" }
+| { type: "AD_STATUS_BROADCAST"; adActive: boolean };
+
+// If you want to be extra strict, you can also type the response to QUERY_AD_STATUS:
+type QueryAdStatusResponse = { adActive: boolean };
 
 function App() {
-const [count, setCount] = useState(0)
+const [isAd, setIsAd] = useState(false);
+
+useEffect(() => {
+// Ask once when the popup opens
+chrome.runtime.sendMessage(
+{ type: "QUERY_AD_STATUS" } as Message,
+(resp: QueryAdStatusResponse | undefined) => {
+setIsAd(resp?.adActive ?? false);
+}
+);
+
+// Listen for live broadcasts
+const listener = (msg: Message) => {
+if (msg.type === "AD_STATUS_BROADCAST") {
+setIsAd(msg.adActive);
+}
+};
+
+chrome.runtime.onMessage.addListener(listener);
+return () => chrome.runtime.onMessage.removeListener(listener);
+}, []);
 
 return (
-<>
-    <div>
-        <a href="https://vite.dev" target="_blank">
-            <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-            <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-    </div>
-    <h1>Vite + React</h1>
-    <div className="card">
-        <button onClick={()=> setCount((count) => count + 1)}>
-            count is {count}
-        </button>
-        <p className="bg-red-700">
-            Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-    </div>
-    <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-    </p>
-</>
-)
+<div style={{ fontSize: 16, minWidth: 140, padding: 12 }}>
+    {isAd ? "🔴 Ad is playing" : "🟢 No ad detected"}
+</div>
+);
 }
 
-export default App
+export default App;
