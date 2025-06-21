@@ -21,6 +21,16 @@ export default defineConfig({
 		rollupOptions: {
 			input: {
 				main: './index.html',
+				background: 'src/utils/background.ts',
+				content: 'src/utils/content.ts',
+			},
+			output: {
+				entryFileNames: ({ name }) => {
+					if (name === 'content') return 'content.js';
+					if (name === 'background') return 'background.js';
+					return 'assets/[name].js';
+				},
+				assetFileNames: 'assets/[name][extname]'
 			},
 		},
 	},
