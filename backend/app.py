@@ -38,10 +38,17 @@ async def analyze_url(request: AnalysisRequest):
     # Initialize Gemini client
     client = genai.Client(api_key=API_KEY)
 
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/114.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+    }
     # Fetch the URL content
     url = request.url
     try:
-        response = requests.get(url)
+        response = requests.get(url, headers=headers)
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail="Failed to fetch URL content")
         html_content = response.text
