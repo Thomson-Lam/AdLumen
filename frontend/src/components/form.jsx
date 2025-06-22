@@ -55,7 +55,7 @@ export default function Form() {
 			
 			{result && (
 				<div>
-					<p>{result.response}</p>	
+					<p>{result.response.error} || {result.response.probability}</p>	
 				</div>
 			)}
 		</>

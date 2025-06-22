@@ -14,8 +14,8 @@ from PIL import Image
 import hashlib
 
 # Configuration
-TOGETHER_API_KEY = "78623dc87eba15873654310f371ee2c5f8b4f5b732276ae5204a45bd1a60c107"  # Replace with your Together.ai API key
-GOOGLE_SAFE_BROWSING_API_KEY = "AIzaSyAkl0pEOyKB04Tli0CoJICjfLAS6xcG31M"  # Replace with your Google Safe Browsing API key
+TOGETHER_API_KEY = ""  # Replace with your Together.ai API key
+GOOGLE_SAFE_BROWSING_API_KEY = ""  # Replace with your Google Safe Browsing API key
 
 TOGETHER_API_URL = "https://api.together.xyz/v1/chat/completions"
 ORCHESTRATOR_MODEL = "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo"
