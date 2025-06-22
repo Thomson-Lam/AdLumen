@@ -7,6 +7,10 @@ import os
 from dotenv import load_dotenv
 import requests
 import json
+import time
+import random
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 # Load environment variables
 load_dotenv()
@@ -38,22 +42,45 @@ async def analyze_url(request: AnalysisRequest):
     # Initialize Gemini client
     client = genai.Client(api_key=API_KEY)
 
+    session = requests.Session()
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                  "AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/114.0.0.0 Safari/537.36",
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/114.0.0.0 Safari/537.36"
+        ),
         "Accept-Language": "en-US,en;q=0.9",
         "Accept-Encoding": "gzip, deflate, br",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Connection": "keep-alive"
     }
+
+    session.headers.update(headers)
+
+
+    retry_strategy = Retry(
+        total=5,
+        backoff_factor=1,  # exponential backoff: 1s, 2s, 4s, etc.
+        status_forcelist=[429, 500, 502, 503, 504],
+        allowed_methods=["HEAD", "GET", "OPTIONS"]
+    )
+    
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+
+    time.sleep(random.uniform(1, 3))
+
     # Fetch the URL content
     url = request.url
     try:
-        response = requests.get(url, headers=headers)
+        response = session.get(url, timeout=10)
+
         if response.status_code != 200:
             raise HTTPException(status_code=response.status_code, detail="Failed to fetch URL content")
         html_content = response.text
     except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=500, detail=f"Error fetching URL: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to fetch URL. Received HTTP 500 from server.")
 
     # Build the prompt
     prompt = f"""
