@@ -65,11 +65,9 @@ def build_prompt(url, clean_text):
 
     ```json
     {{
-        "fraud_probability": 0.00,
-        "confidence_level": 0.00,
-        "justification": "Primary factors influencing this assessment.",
-        "call_google_safe_browsing": true,
-        "call_whoami": false
+            "fraud_probability": final_fraud_score,
+            "confidence_level": analysis_result["confidence_level"],
+            "justification": analysis_result["justification"]
     }}
     ```
 
@@ -102,41 +100,51 @@ def scam_agent(client, url, clean_text):
         raw_response = gemini_response.text.strip()
         print(f"Raw Gemini response: {raw_response}")
         
+        # Clean the response by removing Markdown code blocks
+        if raw_response.startswith('```json'):
+            raw_response = raw_response[7:]  # Remove ```json
+        if raw_response.endswith('```'):
+            raw_response = raw_response[:-3]  # Remove ```
+        raw_response = raw_response.strip()
+        
         # Parse JSON response
         import json
         try:
-            analysis_result = json.loads(raw_response)
-            print(f"Parsed JSON: {analysis_result}")
+            full_response = json.loads(raw_response)
+            print(f"Parsed JSON: {full_response}")
             
             # Validate required fields
-            required_fields = ["fraud_probability", "confidence_level", "justification", 
-                            "call_google_safe_browsing", "call_whoami"]
-            if not all(key in analysis_result for key in required_fields):
+            required_fields = ["fraud_probability", "confidence_level", "justification"]
+            if not all(key in full_response for key in required_fields):
                 raise ValueError("Missing required fields in response")
                 
+            # Extract tool call flags
+            call_google = full_response.pop("call_google_safe_browsing", False)
+            call_whoami = full_response.pop("call_whoami", False)
+            
+            analysis_result = full_response
+            
         except (json.JSONDecodeError, ValueError) as e:
             print(f"JSON parsing error: {e}")
-            # Fallback response (in the JSON parsing error section)
             analysis_result = {
                 "fraud_probability": 0.0,
                 "confidence_level": 0.0,
-                "justification": "Unable to analyze due to parsing error."
+                "justification": "Unable to analyze due to parsing error"
             }
+            call_google = False
+            call_whoami = False
         
-        # Call tools based on Gemini's recommendations
-        tool_scores = []
+        # Call tools based on flags
+        tool_results = []
 
-        if analysis_result.get("call_google_safe_browsing", False):
-            gsb_score = google_safe_browsing_check(url)
-            tool_scores.append(gsb_score)
+        if call_google:
+            tool_results.append(google_safe_browsing_check(url))
 
-        if analysis_result.get("call_whoami", False):
-            whoami_score = whoami(url)
-            tool_scores.append(whoami_score)
+        if call_whoami:
+            tool_results.append((whoami(url), True))  # whoami always returns includable score
 
         # Average scores
-        gemini_score = analysis_result["fraud_probability"]
-        final_fraud_score = average_score(gemini_score, tool_scores)
+        final_fraud_score = average_score(analysis_result["fraud_probability"], tool_results)
 
         # Update analysis_result with final averaged score
         analysis_result = {
@@ -149,7 +157,7 @@ def scam_agent(client, url, clean_text):
         
     except Exception as e:
         print(f"Gemini error: {e}")
-        # Error response (in the main exception handler)
+        # Error response
         return {
             "fraud_probability": 0.0,
             "confidence_level": 0.0,
@@ -157,53 +165,48 @@ def scam_agent(client, url, clean_text):
         }
     
 def google_safe_browsing_check(url):
-        try:
-            import requests
-            import os
-            
-            api_key = os.getenv('GOOGLE_SAFE_BROWSING_API_KEY')
-            if not api_key:
-                print("Google Safe Browsing API key not found in environment variables")
-                return 0.0
-            
-            # Google Safe Browsing API endpoint
-            api_url = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={api_key}"
-            
-            # Request payload
-            payload = {
-                "client": {
-                    "clientId": "fraud-detection-agent",
-                    "clientVersion": "1.0.0"
-                },
-                "threatInfo": {
-                    "threatTypes": [
-                        "MALWARE",
-                        "SOCIAL_ENGINEERING",
-                        "UNWANTED_SOFTWARE",
-                        "POTENTIALLY_HARMFUL_APPLICATION"
-                    ],
-                    "platformTypes": ["ANY_PLATFORM"],
-                    "threatEntryTypes": ["URL"],
-                    "threatEntries": [
-                        {"url": url}
-                    ]
-                }
+    """Returns (score, should_include_in_average) tuple"""
+    try:
+        import requests
+        import os
+        from urllib.parse import urlparse
+        
+        # Skip check for certain domains
+        domain = urlparse(url).netloc.lower()
+        excluded_domains = ['.gov', '.mil', 'localhost']  # Add others as needed
+        if any(domain.endswith(excluded) for excluded in excluded_domains):
+            print(f"Skipping Safe Browsing check for excluded domain: {domain}")
+            return (0.0, False)  # Neutral score, excluded from average
+        
+        api_key = os.getenv('GOOGLE_SAFE_BROWSING_API_KEY')
+        if not api_key:
+            print("Google Safe Browsing API key not found")
+            return (0.0, False)
+        
+        # API request setup remains the same...
+        api_url = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={api_key}"
+        payload = {
+            "client": {
+                "clientId": "fraud-detection-agent",
+                "clientVersion": "1.0.0"
+            },
+            "threatInfo": {
+                "threatTypes": ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE"],
+                "platformTypes": ["ANY_PLATFORM"],
+                "threatEntryTypes": ["URL"],
+                "threatEntries": [{"url": url}]
             }
-            
-            print(f"Checking {url} against Google Safe Browsing...")
-            
-            # Make API request
+        }
+        
+        try:
             response = requests.post(api_url, json=payload, timeout=10)
             response.raise_for_status()
-            
             result = response.json()
             
-            # Check if threats were found
             if "matches" in result and result["matches"]:
                 threat_types = [match.get("threatType", "UNKNOWN") for match in result["matches"]]
                 print(f"Threats found: {threat_types}")
                 
-                # Score based on threat severity
                 score = 0.0
                 for threat in threat_types:
                     if threat == "MALWARE":
@@ -215,17 +218,20 @@ def google_safe_browsing_check(url):
                     else:
                         score = max(score, 0.5)
                 
-                return min(score, 1.0)
+                return (min(score, 1.0), True)
             else:
                 print("No threats found in Google Safe Browsing")
-                return 0.0
+                return (0.0, True)
                 
-        except requests.exceptions.RequestException as e:
-            print(f"Google Safe Browsing API request failed: {e}")
-            return 0.0
-        except Exception as e:
-            print(f"Google Safe Browsing check failed: {e}")
-            return 0.0
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 403:
+                print("Google Safe Browsing API access denied (possibly restricted domain)")
+                return (0.0, False)
+            raise
+            
+    except Exception as e:
+        print(f"Google Safe Browsing check failed: {e}")
+        return (0.0, False)  # Neutral score, excluded from average
     
 def whoami(url):
     try:
@@ -299,28 +305,20 @@ def whoami(url):
         print(f"WHOIS lookup failed: {e}")
         return 0.0  # Return neutral score on failure
 
-def average_score(gemini_score, tool_scores):
+def average_score(gemini_score, tool_results):
     """
-    Calculate weighted average of Gemini analysis and tool scores.
-    
-    Args:
-        gemini_score (float): Gemini's fraud probability assessment
-        tool_scores (list): List of scores from tools that were called
-        
-    Returns:
-        float: Final averaged fraud probability score
+    Calculate weighted average of scores.
+    tool_results should be list of (score, should_include) tuples
     """
-    all_scores = [gemini_score]
+    valid_scores = [gemini_score]
     
-    # Add tool scores if any tools were called
-    if tool_scores:
-        all_scores.extend(tool_scores)
+    for score, should_include in tool_results:
+        if should_include:
+            valid_scores.append(score)
     
-    # Calculate simple average
-    if all_scores:
-        average = sum(all_scores) / len(all_scores)
-        print(f"Averaging scores: {all_scores} = {average:.2f}")
+    if valid_scores:
+        average = sum(valid_scores) / len(valid_scores)
+        print(f"Averaging {len(valid_scores)} scores: {valid_scores} = {average:.2f}")
         return round(average, 2)
     else:
-        print("No scores to average, returning Gemini score")
         return round(gemini_score, 2)

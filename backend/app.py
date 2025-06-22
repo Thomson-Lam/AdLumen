@@ -85,7 +85,8 @@ async def analyze_url(request: AnalysisRequest):
         ##
         import json
         try:
-            analysis_result = json.loads(scam_agent(client, request.url, clean_text))
+            analysis_result = scam_agent(client, request.url, clean_text)
+            #analysis_result = json.loads(result)
             print(f"Parsed JSON: {analysis_result}")
                 
             # Validate required fields
