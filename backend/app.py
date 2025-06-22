@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+# import uvicorn
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from google import genai
@@ -59,7 +60,7 @@ async def analyze_url(request: AnalysisRequest):
 
     # Call Gemini API
     try:
-        gemini_response = client.generate_content(
+        gemini_response = client.models.generate_content(
             model="gemini-2.5-flash",
             contents=prompt,
         )
@@ -89,7 +90,6 @@ async def results():
     }
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
