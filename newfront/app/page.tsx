@@ -12,8 +12,9 @@ export default function AdLumenScanner() {
   const [result, setResult] = useState<string | null>("");
   const [error, setError] = useState<string | null>(null); 
 
-  const handleScan = async(e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleScan = async() => {
+	console.log("WORKING");
+    //e.preventDefault();
     setIsScanning(true);
     setError(null);
     try{
@@ -33,72 +34,72 @@ export default function AdLumenScanner() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br via-blue-900 from-slate-900 to-slate-900">
       {/* Navigation Header */}
-      <header className="w-full px-6 py-4 bg-slate-900/50 backdrop-blur-sm border-b border-blue-500/20">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      <header className="py-4 px-6 w-full border-b bg-slate-900/50 backdrop-blur-sm border-blue-500/20">
+        <div className="flex justify-between items-center mx-auto max-w-7xl">
           {/* Navigation Links */}
           <nav className="flex items-center space-x-8">
             <Button
               variant="ghost"
-              className="text-white hover:text-blue-400 hover:bg-blue-500/10 transition-all duration-200"
+              className="text-white transition-all duration-200 hover:text-blue-400 hover:bg-blue-500/10"
             >
-              <Home className="w-4 h-4 mr-2" />
+              <Home className="mr-2 w-4 h-4" />
               Home
             </Button>
             <Button
               variant="ghost"
-              className="text-white hover:text-blue-400 hover:bg-blue-500/10 transition-all duration-200"
+              className="text-white transition-all duration-200 hover:text-blue-400 hover:bg-blue-500/10"
             >
-              <HelpCircle className="w-4 h-4 mr-2" />
+              <HelpCircle className="mr-2 w-4 h-4" />
               How Does It Work
             </Button>
             <Button
               variant="ghost"
-              className="text-white hover:text-blue-400 hover:bg-blue-500/10 transition-all duration-200"
+              className="text-white transition-all duration-200 hover:text-blue-400 hover:bg-blue-500/10"
             >
-              <DollarSign className="w-4 h-4 mr-2" />
+              <DollarSign className="mr-2 w-4 h-4" />
               Pricing
             </Button>
             <Button
               variant="ghost"
-              className="text-white hover:text-blue-400 hover:bg-blue-500/10 transition-all duration-200"
+              className="text-white transition-all duration-200 hover:text-blue-400 hover:bg-blue-500/10"
             >
-              <LogIn className="w-4 h-4 mr-2" />
+              <LogIn className="mr-2 w-4 h-4" />
               Login
             </Button>
           </nav>
 
           {/* Logo */}
           <div className="flex items-center">
-            <Image src="/images/adlumen-logo.png" alt="AdLumen Logo" width={200} height={60} className="h-12 w-auto" />
+            <Image src="/images/adlumen-logo.png" alt="AdLumen Logo" width={200} height={60} className="w-auto h-12" />
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 py-20">
+      <main className="flex flex-col flex-1 justify-center items-center py-20 px-6">
         {/* Hero Section */}
-        <div className="text-center mb-16 max-w-4xl">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 bg-gradient-to-r from-blue-400 to-cyan-300 bg-clip-text text-transparent">
+        <div className="mb-16 max-w-4xl text-center">
+          <h1 className="mb-6 text-5xl font-bold text-transparent text-white bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 md:text-7xl">
             Detect Malicious Websites
           </h1>
-          <p className="text-xl md:text-2xl text-blue-200 mb-8 leading-relaxed">
+          <p className="mb-8 text-xl leading-relaxed text-blue-200 md:text-2xl">
             Protect yourself from malicious websites and online scams with our advanced AI detection technology
           </p>
 
           {/* Feature Highlights */}
-          <div className="flex flex-wrap justify-center gap-6 mb-12">
-            <div className="flex items-center bg-blue-500/10 backdrop-blur-sm rounded-full px-4 py-2 border border-blue-500/20">
-              <Shield className="w-5 h-5 text-blue-400 mr-2" />
+          <div className="flex flex-wrap gap-6 justify-center mb-12">
+            <div className="flex items-center py-2 px-4 rounded-full border bg-blue-500/10 backdrop-blur-sm border-blue-500/20">
+              <Shield className="mr-2 w-5 h-5 text-blue-400" />
               <span className="text-blue-200">Real-time Scanning</span>
             </div>
-            <div className="flex items-center bg-blue-500/10 backdrop-blur-sm rounded-full px-4 py-2 border border-blue-500/20">
-              <Zap className="w-5 h-5 text-blue-400 mr-2" />
+            <div className="flex items-center py-2 px-4 rounded-full border bg-blue-500/10 backdrop-blur-sm border-blue-500/20">
+              <Zap className="mr-2 w-5 h-5 text-blue-400" />
               <span className="text-blue-200">AI-Powered Detection</span>
             </div>
-            <div className="flex items-center bg-blue-500/10 backdrop-blur-sm rounded-full px-4 py-2 border border-blue-500/20">
-              <Search className="w-5 h-5 text-blue-400 mr-2" />
+            <div className="flex items-center py-2 px-4 rounded-full border bg-blue-500/10 backdrop-blur-sm border-blue-500/20">
+              <Search className="mr-2 w-5 h-5 text-blue-400" />
               <span className="text-blue-200">Threat Analysis</span>
             </div>
           </div>
@@ -106,34 +107,34 @@ export default function AdLumenScanner() {
 
         {/* URL Scanner Interface */}
         <div className="w-full max-w-2xl">
-          <div className="bg-white/5 backdrop-blur-lg rounded-2xl p-8 border border-blue-500/20 shadow-2xl">
+          <div className="p-8 rounded-2xl border shadow-2xl bg-white/5 backdrop-blur-lg border-blue-500/20">
             <div className="relative">
               <div className="flex items-center space-x-4">
-                <div className="flex-1 relative">
+                <div className="relative flex-1">
                   <Input
                     type="url"
                     placeholder="Enter URL to scan for malicious content..."
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    className="w-full h-16 px-6 text-lg bg-white border-2 border-blue-200 rounded-xl focus:border-blue-400 focus:ring-4 focus:ring-blue-400/20 transition-all duration-200 placeholder:text-gray-500"
+                    className="px-6 w-full h-16 text-lg bg-white rounded-xl border-2 border-blue-200 transition-all duration-200 focus:border-blue-400 focus:ring-4 placeholder:text-gray-500 focus:ring-blue-400/20"
                     disabled={isScanning}
                   />
                   {isScanning && (
-                    <div className="absolute inset-0 bg-blue-500/10 rounded-xl flex items-center justify-center">
+                    <div className="flex absolute inset-0 justify-center items-center rounded-xl bg-blue-500/10">
                       <div className="flex items-center space-x-3">
-                        <div className="w-6 h-6 border-3 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-blue-400 font-medium">Scanning...</span>
+                        <div className="w-6 h-6 rounded-full border-blue-400 animate-spin border-3 border-t-transparent"></div>
+                        <span className="font-medium text-blue-400">Scanning...</span>
                       </div>
                     </div>
                   )}
                 </div>
 
                 <Button
-                  onClick={(e) =>handleScan}
+                  onClick={handleScan}
                   disabled={!url.trim() || isScanning}
-                  className="h-16 w-16 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 border-0 rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl border-0 shadow-lg transition-all duration-200 hover:from-blue-600 hover:to-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed group hover:shadow-blue-500/25"
                 >
-                  <Send className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-200" />
+                  <Send className="w-6 h-6 text-white transition-transform duration-200 group-hover:scale-110" />
                 </Button>
               </div>
             </div>
@@ -141,13 +142,13 @@ export default function AdLumenScanner() {
             {/* Scan Progress */}
             {isScanning && (
               <div className="mt-6">
-                <div className="w-full bg-blue-900/30 rounded-full h-2">
+                <div className="w-full h-2 rounded-full bg-blue-900/30">
                   <div
-                    className="bg-gradient-to-r from-blue-400 to-cyan-400 h-2 rounded-full animate-pulse"
+                    className="h-2 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full animate-pulse"
                     style={{ width: "60%" }}
                   ></div>
                 </div>
-                <p className="text-blue-300 text-sm mt-2 text-center">
+                <p className="mt-2 text-sm text-center text-blue-300">
                   Analyzing content for malicious websites and online scams...
                 </p>
               </div>
@@ -155,13 +156,13 @@ export default function AdLumenScanner() {
 
 
             {error && (
-              <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
+              <div className="p-4 mt-4 text-red-400 rounded-lg border bg-red-500/10 border-red-500/20">
                 {error}
               </div>
             )}
 
             {result && (
-              <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400">
+              <div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
                 {result}
               </div>
             )}
@@ -169,15 +170,15 @@ export default function AdLumenScanner() {
 
           {/* Quick Actions */}
           <div className="mt-8 text-center">
-            <p className="text-blue-300 mb-4">Try these examples:</p>
-            <div className="flex flex-wrap justify-center gap-3">
+            <p className="mb-4 text-blue-300">Try these examples:</p>
+            <div className="flex flex-wrap gap-3 justify-center">
               {["amazon.com", "ebay.com", "facebook.com/marketplace"].map((example) => (
                 <Button
                   key={example}
                   variant="outline"
                   size="sm"
                   onClick={() => setUrl(`https://${example}`)}
-                  className="bg-blue-500/10 text-blue-300 border-blue-500/30 hover:bg-blue-500/20 hover:border-blue-400 transition-all duration-200"
+                  className="text-blue-300 transition-all duration-200 hover:border-blue-400 bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20"
                   disabled={isScanning}
                 >
                   {example}
@@ -188,28 +189,28 @@ export default function AdLumenScanner() {
         </div>
 
         {/* Trust Indicators */}
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl w-full">
-          <div className="text-center p-6 bg-blue-500/5 rounded-xl border border-blue-500/10">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="grid grid-cols-1 gap-8 mt-20 w-full max-w-4xl md:grid-cols-3">
+          <div className="p-6 text-center rounded-xl border bg-blue-500/5 border-blue-500/10">
+            <div className="flex justify-center items-center mx-auto mb-4 w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">94% Accuracy</h3>
+            <h3 className="mb-2 text-xl font-semibold text-white">94% Accuracy</h3>
             <p className="text-blue-200">Advanced AI models trained on large dataset on scam patterns</p>
           </div>
 
-          <div className="text-center p-6 bg-blue-500/5 rounded-xl border border-blue-500/10">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="p-6 text-center rounded-xl border bg-blue-500/5 border-blue-500/10">
+            <div className="flex justify-center items-center mx-auto mb-4 w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full">
               <Zap className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">Instant Results</h3>
+            <h3 className="mb-2 text-xl font-semibold text-white">Instant Results</h3>
             <p className="text-blue-200">Get comprehensive scan results in under 3 seconds</p>
           </div>
 
-          <div className="text-center p-6 bg-blue-500/5 rounded-xl border border-blue-500/10">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="p-6 text-center rounded-xl border bg-blue-500/5 border-blue-500/10">
+            <div className="flex justify-center items-center mx-auto mb-4 w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full">
               <Search className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">Threat Detection</h3>
+            <h3 className="mb-2 text-xl font-semibold text-white">Threat Detection</h3>
             <p className="text-blue-200">Identify phishing, malware, and other malicious activities.</p>
           </div>
         </div>
