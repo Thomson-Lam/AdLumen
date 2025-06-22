@@ -219,13 +219,13 @@ export default function AdLumenScanner() {
           <div className="mt-8 text-center">
             <p className="mb-4 text-blue-300">Try these examples:</p>
             <div className="flex flex-wrap gap-3 justify-center">
-              {["amazon.com", "ebay.com", "facebook.com/marketplace"].map((example) => (
+              {["msn.com/en-ca/sports/mma_ufc/jon-jones-retires-from-ufc-tom-aspinall-named-undisputed-heavyweight-champion/ar-AA1HapRy?ocid=msedgntphdr&cvid=baedae8367d5424a96db66a4876598a3&ei=14", "ebay.com", "facebook.com/marketplace"].map((example) => (
                 <Button
                   key={example}
                   variant="outline"
                   size="sm"
                   onClick={() => setUrl(`https://${example}`)}
-                  className="text-blue-300 transition-all duration-200 hover:border-blue-400 bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20"
+                  className="text-blue-300 transition-all duration-200 hover:text-white hover:border-blue-400 bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/20"
                   disabled={isScanning}
                 >
                   {example}
