@@ -13,6 +13,15 @@ type Res  = {
   	justification: string;
 };
 
+function evalRisk(result: Res): "low" | "medium" | "high" {
+  if (result.confidence_level >= 8 || result.fraud_probability >= 70) {
+    return "high";
+  } else if (result.confidence_level >= 5 || result.fraud_probability >= 50) {
+    return "medium";
+  } else {
+    return "low";
+  }
+}
 
 export default function AdLumenScanner() {
   const [url, setUrl] = useState("")
@@ -62,7 +71,7 @@ export default function AdLumenScanner() {
               className="text-white transition-all duration-200 hover:text-blue-400 hover:bg-blue-500/10"
             >
               <HelpCircle className="mr-2 w-4 h-4" />
-              How Does It Work
+              How Does It Work?
             </Button>
             <Button
               variant="ghost"
@@ -92,25 +101,25 @@ export default function AdLumenScanner() {
         {/* Hero Section */}
         <div className="mb-16 max-w-4xl text-center">
           <h1 className="mb-6 text-5xl font-bold text-transparent text-white bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 md:text-7xl">
-            Detect Malicious Websites
+            Detect Scam Websites
           </h1>
-          <p className="mb-8 text-xl leading-relaxed text-blue-200 md:text-2xl">
-            Protect yourself from malicious websites and online scams with our advanced AI detection technology
+          <p className="mb-8 text-xl leading-relaxed text-white md:text-2xl">
+            Hi 🤗 Paste a URL to scan the site, or use one of the URLs below. 
           </p>
 
           {/* Feature Highlights */}
           <div className="flex flex-wrap gap-6 justify-center mb-12">
             <div className="flex items-center py-2 px-4 rounded-full border bg-blue-500/10 backdrop-blur-sm border-blue-500/20">
               <Shield className="mr-2 w-5 h-5 text-blue-400" />
-              <span className="text-blue-200">Real-time Scanning</span>
+              <span className="text-xl font-bold text-white">Semantic + Element Scanning</span>
             </div>
             <div className="flex items-center py-2 px-4 rounded-full border bg-blue-500/10 backdrop-blur-sm border-blue-500/20">
               <Zap className="mr-2 w-5 h-5 text-blue-400" />
-              <span className="text-blue-200">AI-Powered Detection</span>
+              <span className="text-xl font-bold text-white">Domain Analysis</span>
             </div>
             <div className="flex items-center py-2 px-4 rounded-full border bg-blue-500/10 backdrop-blur-sm border-blue-500/20">
               <Search className="mr-2 w-5 h-5 text-blue-400" />
-              <span className="text-blue-200">Threat Analysis</span>
+              <span className="text-xl font-bold text-white">ID deceptive Ads and browse safely</span>
             </div>
           </div>
         </div>
@@ -172,19 +181,36 @@ export default function AdLumenScanner() {
             )}
 
             {result && (
-		<div className="flex flex-col gap-y-1 justify-center items-center">
-              		<div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
-                	{result.confidence_level}
+		<div className="flex flex-col gap-y-1 justify-center items-center mt-5 w-full rounded-lg border bg-blue/60">
+			<div className="flex flex-row justify-between items-center p-4 w-full text-white">
+			<h2 className="text-xl font-bold">Security Risk: {evalRisk(result).toUpperCase()}</h2>
+			
+			</div>
+              		<div className="flex flex-row justify-between items-center p-4 w-full text-white border-t border-white">
+			<p className="font-bold">AI Confidence Level (out of 10):</p>
+			<p className={
+    				result.confidence_level >= 8
+      				? 'rounded-lg bg-red-700/30 text-red-700'
+      				: result.confidence_level >= 5
+      				? 'rounded-lg bg-yellow-700/30 text-yellow-700'
+      				: 'rounded-lg bg-green-700/30 text-green-300 px-2'}>
+    			{result.confidence_level}</p>
               		</div>
-			<div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
-                	{result.fraud_probability}
+			<div className="flex flex-row justify-between items-center p-4 w-full text-white border-t border-white">
+				<p className="font-bold">Fraud Probability (out of 100):</p>
+				<p className={
+    					result.fraud_probability >= 70
+      					? 'rounded-lg bg-red-700/30 text-red-700'
+      					: result.fraud_probability >= 50
+      					? 'rounded-lg bg-yellow-700/30 text-yellow-700'
+      					: 'rounded-lg bg-green-700/30 text-green-300 px-2'}>
+    				{result.fraud_probability} %</p>
               		</div>
-			<div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
-                	{result.url}
+			<div className="flex flex-col items-center p-4 w-full text-white border-t border-white">
+				<h2 className="text-xl font-bold">Justification:</h2>
+                		<p className="p-2 text-center">{result.justification}</p>
               		</div>
-			<div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
-                	{result.justification}
-              		</div>
+			
 		</div>
             )}
           </div>
