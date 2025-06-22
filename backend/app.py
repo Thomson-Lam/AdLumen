@@ -12,6 +12,7 @@ import random
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
+from final_agent import scam_agent
 
 # Load environment variables
 load_dotenv()
@@ -134,6 +135,4 @@ async def results():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-##### JSON > LLM INVESTIGATOR #####
-
+    scam_agent()
