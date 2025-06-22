@@ -11,6 +11,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 import json
+from final_agent import scam_agent
 
 # Load environment variables
 load_dotenv()
@@ -82,51 +83,23 @@ async def analyze_url(request: AnalysisRequest):
         # """
         
         ##
-        prompt = f"""Task: Perform a fraud risk assessment of {request.url} and return ONLY a JSON object with the following structure:
-
-            json
-            {{
-            "fraud_probability": [0.00–1.00],
-            "confidence_level": [0.00–1.00],
-            "justification": "Concise 1-2 sentence explanation."
-            }}
-
-            Rules:
-
-            - No additional text before, after, or inside the JSON (e.g., no "Here’s the result:", disclaimers, or markdown formatting).
-            - Strict compliance—if unable to generate valid JSON, return {{}}.
-            - Precision: Use decimal percentages (e.g., 0.25, not 0.2).
-
-            Analysis Requirements:
-
-            Technical: WHOIS age, SSL/TLS, HTTPS, security headers (CSP/HSTS/X-Frame-Options).
-            Content: Scam indicators, branding consistency, contact info.
-            Threat Intel: Blacklists (Google Safe Browsing, PhishTank), historical scans (VirusTotal)."""
-        ##
-        
+        import json
         try:
-            gemini_response = client.models.generate_content(model="gemini-2.5-flash", contents=prompt)
-            raw_response = gemini_response.text.strip()
-            print(f"Raw Gemini response: {raw_response}")
-            
-            # Parse JSON response
-            import json
-            try:
-                analysis_result = json.loads(raw_response)
-                print(f"Parsed JSON: {analysis_result}")
+            analysis_result = json.loads(scam_agent(client, request.url, clean_text))
+            print(f"Parsed JSON: {analysis_result}")
                 
-                # Validate required fields
-                if not all(key in analysis_result for key in ["fraud_probability", "confidence_level", "justification"]):
-                    raise ValueError("Missing required fields in response")
+            # Validate required fields
+            if not all(key in analysis_result for key in ["fraud_probability", "confidence_level", "justification"]):
+                raise ValueError("Missing required fields in response")
                     
-            except (json.JSONDecodeError, ValueError) as e:
-                print(f"JSON parsing error: {e}")
-                # Fallback response
-                analysis_result = {
-                    "fraud_probability": 0.0,
-                    "confidence_level": 0.0,
-                    "justification": "Unable to analyze due to parsing error."
-                }
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"JSON parsing error: {e}")
+            # Fallback response
+            analysis_result = {
+                "fraud_probability": 0.0,
+                "confidence_level": 0.0,
+                "justification": "Unable to analyze due to parsing error."
+            }
                 
         except Exception as e:
             print(f"Gemini error: {e}")

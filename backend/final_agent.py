@@ -1,16 +1,326 @@
-class final_agent:
-    
-    def __init__(self, g_client):
-        self.client = g_client
+def build_prompt(url, clean_text):
+    prompt = f"""# Cybersecurity Agent - Initial Analysis
+
+    ## Role & Context
+    You are the **initial analysis component** of a multi-stage fraud detection system. Your assessment will be combined with additional tool results to calculate a final averaged fraud score. Focus on providing your best independent assessment using cybersecurity expertise.
+
+    ## Your Specific Task
+    Perform comprehensive fraud risk analysis using ONLY the provided URL and content. Do NOT call external tools - your role is the foundational analysis that will be enhanced by specialized tools if needed.
+
+    ## Input Data
+    - **Target URL**: {url}
+    - **Extracted Content**: {clean_text}
+
+    ## Analysis Framework
+
+    ### Primary Cybersecurity Assessment
+    Analyze as an expert cybersecurity specialist:
+
+    **Content Security Analysis:**
+    - Phishing indicators (credential harvesting, urgent language, impersonation)
+    - Social engineering tactics (false scarcity, fear appeals, unrealistic promises)
+    - Legitimacy markers (professional copy, consistent branding, logical business model)
+    - Contact verification (email domains, phone patterns, address consistency)
+
+    **Technical Security Evaluation:**
+    - Domain assessment (structure, TLD reputation, suspicious patterns)
+    - Known threat signatures (compare against common fraud schemes)
+    - Security implementation (HTTPS usage, redirect behavior)
+    - Website functionality (normal business operations vs. suspicious requests)
+
+    **Risk Indicators Checklist:**
+    - Grammar/spelling errors in professional contexts
+    - Mismatched branding or domain inconsistencies
+    - Excessive urgency or pressure tactics
+    - Requests for sensitive information
+    - Suspicious payment methods or processes
+    - Domain age implications (if determinable from content)
+
+    ## Scoring Guidelines
+    Your fraud_probability represents your independent assessment:
+    - **0.00-0.25**: Strong legitimacy indicators, professional presentation
+    - **0.26-0.50**: Minor concerns but likely legitimate
+    - **0.51-0.75**: Significant red flags, probably fraudulent
+    - **0.76-1.00**: Multiple fraud indicators, high confidence malicious
+
+    ## Function Call Decision
+    Based on your analysis, determine if additional validation would be valuable:
+
+    **Available Tools:**
+    - `google_safe_browsing_check(url)` - Check reputation databases
+    - `whoami(url)` - Domain registration analysis
+
+    **Call Functions When:**
+    - Your confidence is medium (fraud_probability 0.25-0.75)
+    - Conflicting indicators need external validation
+    - Domain details would significantly impact assessment
+
+    **Skip Functions When:**
+    - High confidence in legitimacy (< 0.25 fraud probability)
+    - High confidence in fraud (> 0.75 fraud probability)
+    - Content provides overwhelming evidence either way
+
+    ## Output Requirements
+    Return ONLY this JSON object with no additional text:
+
+    ```json
+    {{
+        "fraud_probability": 0.00,
+        "confidence_level": 0.00,
+        "justification": "Primary factors influencing this assessment.",
+        "call_google_safe_browsing": true,
+        "call_whoami": false
+    }}
+    ```
+
+    ## Formatting Rules
+    - **fraud_probability**: Your independent assessment (0.00-1.00, two decimals)
+    - **confidence_level**: Certainty in your assessment (0.00-1.00, two decimals)
+    - **justification**: 1-2 sentences explaining key determining factors
+    - **call_google_safe_browsing**: Boolean - should this tool be called?
+    - **call_whoami**: Boolean - should this tool be called?
+    - **Error handling**: Return {{}} if analysis cannot be completed
+
+    ## Important Notes
+    - Your score will be averaged with tool results for the final fraud score
+    - Focus on what you can determine from content and URL alone
+    - Make function call decisions based on what would genuinely improve overall assessment accuracy
+    - Higher confidence = less need for additional tools"""
         
-    def _build_prompt(self, url, clean_text):
-        pass
+    return prompt
     
-    def scam_agent(self, url, clean_text):
-        pass
+def scam_agent(client, url, clean_text):
+    # Get the prompt
+    prompt = build_prompt(url, clean_text)
     
-    def google_safe_browsing_check(self, url):
-        pass
+    try:
+        # Call Gemini
+        gemini_response = client.models.generate_content(
+            model="gemini-2.5-flash", 
+            contents=prompt
+        )
+        raw_response = gemini_response.text.strip()
+        print(f"Raw Gemini response: {raw_response}")
+        
+        # Parse JSON response
+        import json
+        try:
+            analysis_result = json.loads(raw_response)
+            print(f"Parsed JSON: {analysis_result}")
+            
+            # Validate required fields
+            required_fields = ["fraud_probability", "confidence_level", "justification", 
+                            "call_google_safe_browsing", "call_whoami"]
+            if not all(key in analysis_result for key in required_fields):
+                raise ValueError("Missing required fields in response")
+                
+        except (json.JSONDecodeError, ValueError) as e:
+            print(f"JSON parsing error: {e}")
+            # Fallback response (in the JSON parsing error section)
+            analysis_result = {
+                "fraud_probability": 0.0,
+                "confidence_level": 0.0,
+                "justification": "Unable to analyze due to parsing error."
+            }
+        
+        # Call tools based on Gemini's recommendations
+        tool_scores = []
+
+        if analysis_result.get("call_google_safe_browsing", False):
+            gsb_score = google_safe_browsing_check(url)
+            tool_scores.append(gsb_score)
+
+        if analysis_result.get("call_whoami", False):
+            whoami_score = whoami(url)
+            tool_scores.append(whoami_score)
+
+        # Average scores
+        gemini_score = analysis_result["fraud_probability"]
+        final_fraud_score = average_score(gemini_score, tool_scores)
+
+        # Update analysis_result with final averaged score
+        analysis_result = {
+            "fraud_probability": final_fraud_score,
+            "confidence_level": analysis_result["confidence_level"],
+            "justification": analysis_result["justification"]
+        }
+
+        return analysis_result
+        
+    except Exception as e:
+        print(f"Gemini error: {e}")
+        # Error response (in the main exception handler)
+        return {
+            "fraud_probability": 0.0,
+            "confidence_level": 0.0,
+            "justification": f"Analysis failed: {str(e)}"
+        }
     
-    def whoami(self, url):
-        pass
+def google_safe_browsing_check(url):
+        try:
+            import requests
+            import os
+            
+            api_key = os.getenv('GOOGLE_SAFE_BROWSING_API_KEY')
+            if not api_key:
+                print("Google Safe Browsing API key not found in environment variables")
+                return 0.0
+            
+            # Google Safe Browsing API endpoint
+            api_url = f"https://safebrowsing.googleapis.com/v4/threatMatches:find?key={api_key}"
+            
+            # Request payload
+            payload = {
+                "client": {
+                    "clientId": "fraud-detection-agent",
+                    "clientVersion": "1.0.0"
+                },
+                "threatInfo": {
+                    "threatTypes": [
+                        "MALWARE",
+                        "SOCIAL_ENGINEERING",
+                        "UNWANTED_SOFTWARE",
+                        "POTENTIALLY_HARMFUL_APPLICATION"
+                    ],
+                    "platformTypes": ["ANY_PLATFORM"],
+                    "threatEntryTypes": ["URL"],
+                    "threatEntries": [
+                        {"url": url}
+                    ]
+                }
+            }
+            
+            print(f"Checking {url} against Google Safe Browsing...")
+            
+            # Make API request
+            response = requests.post(api_url, json=payload, timeout=10)
+            response.raise_for_status()
+            
+            result = response.json()
+            
+            # Check if threats were found
+            if "matches" in result and result["matches"]:
+                threat_types = [match.get("threatType", "UNKNOWN") for match in result["matches"]]
+                print(f"Threats found: {threat_types}")
+                
+                # Score based on threat severity
+                score = 0.0
+                for threat in threat_types:
+                    if threat == "MALWARE":
+                        score = max(score, 0.9)
+                    elif threat == "SOCIAL_ENGINEERING":
+                        score = max(score, 0.8)
+                    elif threat in ["UNWANTED_SOFTWARE", "POTENTIALLY_HARMFUL_APPLICATION"]:
+                        score = max(score, 0.6)
+                    else:
+                        score = max(score, 0.5)
+                
+                return min(score, 1.0)
+            else:
+                print("No threats found in Google Safe Browsing")
+                return 0.0
+                
+        except requests.exceptions.RequestException as e:
+            print(f"Google Safe Browsing API request failed: {e}")
+            return 0.0
+        except Exception as e:
+            print(f"Google Safe Browsing check failed: {e}")
+            return 0.0
+    
+def whoami(url):
+    try:
+        import whois
+        from urllib.parse import urlparse
+        from datetime import datetime
+        
+        # Extract domain from URL
+        domain = urlparse(url).netloc
+        if domain.startswith('www.'):
+            domain = domain[4:]
+        
+        print(f"Performing WHOIS lookup for: {domain}")
+        
+        # Perform WHOIS lookup
+        w = whois.whois(domain)
+        
+        score = 0.0
+        factors = []
+        
+        # Check domain age
+        if w.creation_date:
+            if isinstance(w.creation_date, list):
+                creation_date = w.creation_date[0]
+            else:
+                creation_date = w.creation_date
+            
+            age_days = (datetime.now() - creation_date).days
+            
+            if age_days < 30:
+                score += 0.4  # Very new domain - high risk
+                factors.append("very new domain")
+            elif age_days < 365:
+                score += 0.2  # Less than 1 year - moderate risk
+                factors.append("domain less than 1 year old")
+            else:
+                factors.append(f"domain age: {age_days} days")
+        
+        # Check registrar
+        if w.registrar:
+            # Some registrars commonly used by scammers
+            suspicious_registrars = ['namecheap', 'godaddy', 'namesilo']
+            if any(sus in w.registrar.lower() for sus in suspicious_registrars):
+                score += 0.1
+                factors.append("registrar commonly used by fraudsters")
+        
+        # Check privacy protection
+        if w.whois_server and 'privacy' in str(w.whois_server).lower():
+            score += 0.1
+            factors.append("privacy protection enabled")
+        
+        # Check expiration date
+        if w.expiration_date:
+            if isinstance(w.expiration_date, list):
+                expiration_date = w.expiration_date[0]
+            else:
+                expiration_date = w.expiration_date
+            
+            days_until_expiry = (expiration_date - datetime.now()).days
+            if days_until_expiry < 30:
+                score += 0.2
+                factors.append("expires soon")
+        
+        # Cap score at 1.0
+        score = min(score, 1.0)
+        
+        print(f"WHOIS analysis complete. Score: {score}, Factors: {factors}")
+        return score
+        
+    except Exception as e:
+        print(f"WHOIS lookup failed: {e}")
+        return 0.0  # Return neutral score on failure
+
+def average_score(gemini_score, tool_scores):
+    """
+    Calculate weighted average of Gemini analysis and tool scores.
+    
+    Args:
+        gemini_score (float): Gemini's fraud probability assessment
+        tool_scores (list): List of scores from tools that were called
+        
+    Returns:
+        float: Final averaged fraud probability score
+    """
+    all_scores = [gemini_score]
+    
+    # Add tool scores if any tools were called
+    if tool_scores:
+        all_scores.extend(tool_scores)
+    
+    # Calculate simple average
+    if all_scores:
+        average = sum(all_scores) / len(all_scores)
+        print(f"Averaging scores: {all_scores} = {average:.2f}")
+        return round(average, 2)
+    else:
+        print("No scores to average, returning Gemini score")
+        return round(gemini_score, 2)
