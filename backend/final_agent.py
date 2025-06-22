@@ -495,15 +495,22 @@ class ScamInvestigationAgent:
             print(f"❌ Deepfake detection failed: {str(e)}")
             return {"error": str(e), "score": 0}
 
-    def conduct_investigation(self, gemini_response_text):
-        """Main investigation orchestrator"""
+    def conduct_investigation(self, gemini_response):
+        """Main investigation orchestrator - accepts JSON dict or string"""
         print("🕵️ STARTING COMPREHENSIVE SCAM INVESTIGATION")
         print("=" * 70)
         
-        # Parse Gemini response
-        gemini_data = self.parse_gemini_response(gemini_response_text)
-        if not gemini_data:
-            return {"error": "Failed to parse Gemini response", "probability": 0}
+        # Handle both JSON dict and string inputs
+        if isinstance(gemini_response, str):
+            # Parse string to JSON
+            gemini_data = self.parse_gemini_response(gemini_response)
+            if not gemini_data:
+                return {"error": "Failed to parse Gemini response", "probability": 0}
+        elif isinstance(gemini_response, dict):
+            # Already a dict, use directly
+            gemini_data = gemini_response
+        else:
+            return {"error": "Invalid input type. Expected string or dict", "probability": 0}
         
         url = gemini_data.get('url')
         extracted_results = gemini_data.get('results')
@@ -652,8 +659,16 @@ class ScamInvestigationAgent:
         
         print("\n" + "=" * 70)
 
-def main():
-    """Main execution function"""
+def scam_agent(gemini_response):
+    """
+    Scam investigation function that takes Gemini JSON response as parameter
+    
+    Args:
+        gemini_response (str): JSON string from Gemini LLM
+        
+    Returns:
+        dict: Investigation results with probability and analysis
+    """
     if not TOGETHER_API_KEY:
         print("⚠️ Warning: TOGETHER_API_KEY not set. AI-powered analysis will be limited.")
     
@@ -661,40 +676,27 @@ def main():
         print("⚠️ Warning: GOOGLE_SAFE_BROWSING_API_KEY not set. Safe Browsing check will be skipped.")
     
     print("🕵️ Advanced Scam Investigation Agent")
-    print("📋 Provide JSON response from Gemini LLM")
-    print("💡 Format: {\"url\": \"...\", \"results\": \"...\", \"image\": \"...\"}")
+    print(f"📥 Processing Gemini response: {gemini_response.text[:100]}...")
     
     agent = ScamInvestigationAgent()
     
-    while True:
-        print("\n" + "="*50)
-        gemini_response = input("📥 Enter Gemini JSON response (or 'quit' to exit): ").strip()
+    try:
+        result = agent.conduct_investigation(gemini_response)
         
-        if gemini_response.lower() in ['quit', 'exit', 'q']:
-            break
-        
-        if not gemini_response:
-            continue
-        
-        try:
-            result = agent.conduct_investigation(gemini_response)
+        if result.get("error"):
+            print(f"❌ Investigation failed: {result['error']}")
+            return result
+        else:
+            print(f"\n🎯 INVESTIGATION COMPLETE")
+            print(f"📊 Final Scam Probability: {result['probability']}%")
+            return result
             
-            if result.get("error"):
-                print(f"❌ Investigation failed: {result['error']}")
-            else:
-                print(f"\n🎯 INVESTIGATION COMPLETE")
-                print(f"📊 Final Scam Probability: {result['probability']}%")
-            
-            # Reset agent for next investigation
-            agent = ScamInvestigationAgent()
-            
-        except KeyboardInterrupt:
-            print("\n⏹️ Investigation interrupted by user")
-            break
-        except Exception as e:
-            print(f"❌ Investigation failed: {str(e)}")
-            import traceback
-            traceback.print_exc()
+    except Exception as e:
+        error_msg = f"Investigation failed: {str(e)}"
+        print(f"❌ {error_msg}")
+        import traceback
+        traceback.print_exc()
+        return {"error": error_msg, "probability": 0}
 
 if __name__ == "__main__":
-    main()
+    scam_agent()

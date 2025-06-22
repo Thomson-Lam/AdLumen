@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 import requests
 import json
-import time
+import time 
 import random
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -114,10 +114,13 @@ async def analyze_url(request: AnalysisRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Gemini API error: {str(e)}")
 
+    #### CALL AGENT ####
+    result = scam_agent(gemini_response)
+    
     # Return the response
     return {
         "url": url,
-        "response": gemini_response.text,
+        "response": result, # result is a JSON with error and prob 
     }
 
 @app.get("/connection")
@@ -135,4 +138,4 @@ async def results():
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-    scam_agent()
+
