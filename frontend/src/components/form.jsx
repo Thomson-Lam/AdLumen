@@ -1,4 +1,3 @@
-
 // src/components/SubmitForm.jsx
 import { useState } from 'react';
 import { Send } from 'lucide-react';
@@ -22,7 +21,7 @@ export default function Form() {
 			});
 
 			if (!response.ok) {
-				throw new Error(`Server error:  ${response.status}`);
+				throw new Error(`Server error: ${response.status}`);
 			}
 
 			// display the data; TODO: Change the format of data displayed, map it and make it look nice! 
@@ -33,36 +32,32 @@ export default function Form() {
 		} finally {
 			setLoading(false);
 		}
-		
 	}
 
 	return(
-			<>
-			<form onSubmit={handleSubmit} class="flex flex-row gap-x-2 justify-center items-center mb-10 w-[90vw] h-[10vh]">
+		<>
+			<form onSubmit={handleSubmit} className="flex flex-row gap-x-2 justify-center items-center mb-10 w-[90vw] h-[10vh]">
 				<input
 					type="url"
 					value={url}
 					onChange={(e) => setUrl(e.target.value)}
 					placeholder="Enter URL"
 					required 
-					class="px-2 w-full h-full text-xl text-white rounded-lg border border-white transition duration-300 ease-in-out focus:text-black focus:bg-white focus:ring focus:ring-amber-500"
+					className="px-2 w-full h-full text-xl text-white rounded-lg border border-white transition duration-300 ease-in-out focus:text-black focus:bg-white focus:ring focus:ring-amber-500"
 				/>
-				<button type="submit" class="ml-5 transition transform hover:scale-110">
+				<button type="submit" className="ml-5 transition transform hover:scale-110">
 					<Send size={60} color="white" />
 				</button>
 			</form>
 
-		 	{loading && <p>Loading...</p>}
-      			{error && <p className="text-red-500">Error: {error}</p>}
+			{loading && <p>Loading...</p>}
+			{error && <p className="text-red-500">Error: {error}</p>}
 			
 			{result && (
 				<div>
-				<p>{result.response}</p>	
+					<p>{result.response}</p>	
 				</div>
 			)}
 		</>
-	
-
-
 	);
 }
