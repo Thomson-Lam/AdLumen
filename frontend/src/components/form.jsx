@@ -54,8 +54,26 @@ export default function Form() {
 			{error && <p className="text-red-500">Error: {error}</p>}
 			
 			{result && (
-				<div>
-					<p>{result.response.error} || {result.response.probability}</p>	
+				<div className="results-container">
+					<h3>Analysis Results</h3>
+					{result.error ? (
+						<p className="error">Error: {result.error}</p>
+					) : (
+						<div className="analysis-results">
+							<div className="result-item">
+								<strong>URL:</strong> {result.url}
+							</div>
+							<div className="result-item">
+								<strong>Fraud Probability:</strong> {(result.fraud_probability * 100).toFixed(1)}%
+							</div>
+							<div className="result-item">
+								<strong>Confidence Level:</strong> {(result.confidence_level * 100).toFixed(1)}%
+							</div>
+							<div className="result-item">
+								<strong>Summary:</strong> {result.justification}
+							</div>
+						</div>
+					)}
 				</div>
 			)}
 		</>
