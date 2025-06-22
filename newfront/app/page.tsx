@@ -6,10 +6,18 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
 
+type Res  = {
+	url: string;
+  	fraud_probability: number;
+  	confidence_level: number;
+  	justification: string;
+};
+
+
 export default function AdLumenScanner() {
   const [url, setUrl] = useState("")
   const [isScanning, setIsScanning] = useState(false)
-  const [result, setResult] = useState<string | null>("");
+  const [result, setResult] = useState<Res | null>(null);
   const [error, setError] = useState<string | null>(null); 
 
   const handleScan = async() => {
@@ -26,6 +34,8 @@ export default function AdLumenScanner() {
         if (!response.ok) {
           throw new Error('Failed to fetch URL');
         } 
+	const post_res: Res = await response.json(); // TODO: Check if this works!
+	setResult(post_res);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
@@ -162,9 +172,20 @@ export default function AdLumenScanner() {
             )}
 
             {result && (
-              <div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
-                {result}
-              </div>
+		<div className="flex flex-col gap-y-1 justify-center items-center">
+              		<div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
+                	{result.confidence_level}
+              		</div>
+			<div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
+                	{result.fraud_probability}
+              		</div>
+			<div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
+                	{result.url}
+              		</div>
+			<div className="p-4 mt-4 text-green-400 rounded-lg border bg-green-500/10 border-green-500/20">
+                	{result.justification}
+              		</div>
+		</div>
             )}
           </div>
 
