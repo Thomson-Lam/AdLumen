@@ -1,0 +1,144 @@
+{
+  "url": "https://www.youtube.com/watch?v=3wVpVH0Wa6E",
+  "plan": {
+    "tools_to_use": [
+      "safe_browsing",
+      "domain_analysis",
+      "content_analysis",
+      "deepfake_detection"
+    ],
+    "reasoning": "The URL contains deepfake-related keywords, so deepfake_detection is a must. Additionally, safe_browsing and domain_analysis provide quick and free insights into the URL's safety and domain structure. content_analysis is necessary to verify if the video contains actual deepfake content.",
+    "priority": "high",
+    "estimated_api_calls": 4,
+    "deepfake_analysis_warranted": true
+  },
+  "results": {
+    "safe_browsing": {
+      "status": "success",
+      "threats": [],
+      "threat_count": 0,
+      "confidence": 10,
+      "details": {}
+    },
+    "domain_analysis": {
+      "status": "success",
+      "domain": "www.youtube.com",
+      "suspicious_keywords": [],
+      "character_analysis": {
+        "has_hyphens": false,
+        "hyphen_count": 0,
+        "has_numbers": false,
+        "number_count": 0,
+        "length": 15,
+        "subdomain_count": 1,
+        "has_mixed_case": false,
+        "special_chars": 0
+      },
+      "whois_info": {
+        "error": "WHOIS lookup failed: module 'whois' has no attribute 'whois'"
+      },
+      "risk_indicators": [],
+      "confidence": 50
+    },
+    "content_analysis": {
+      "status": "success",
+      "url": "https://www.youtube.com/watch?v=3wVpVH0Wa6E",
+      "status_code": 200,
+      "redirect_chain": [
+        "https://www.youtube.com/watch?v=3wVpVH0Wa6E"
+      ],
+      "title": "Anderson Cooper, 4K Original/(Deep)Fake Example - YouTube",
+      "text_content": "Anderson Cooper, 4K Original/(Deep)Fake Example - YouTubeAboutPressCopyrightContact usCreatorAdvertiseDevelopersTermsPrivacyPolicy & SafetyHow YouTube worksTest new featuresAccessibility\u00a9 2025 Google LLC",
+      "forms": [],
+      "links": {
+        "external": [
+          "https://developers.google.com/youtube",
+          "https://www.google.com/accessibility/get-in-touch/"
+        ],
+        "internal": [
+          "https://www.youtube.com/about/",
+          "https://www.youtube.com/about/press/",
+          "https://www.youtube.com/about/copyright/",
+          "https://www.youtube.com/creators/",
+          "https://www.youtube.com/ads/",
+          "https://www.youtube.com/about/policies/",
+          "https://www.youtube.com/howyoutubeworks?utm_campaign=ytgen&utm_source=ythp&utm_medium=LeftNav&utm_content=txt&u=https%3A%2F%2Fwww.youtube.com%2Fhowyoutubeworks%3Futm_source%3Dythp%26utm_medium%3DLeftNav%26utm_campaign%3Dytgen"
+        ],
+        "external_count": 2,
+        "internal_count": 7
+      },
+      "images": [],
+      "meta_info": {
+        "theme-color": "rgba(255, 255, 255, 0.98)",
+        "title": "Anderson Cooper, 4K Original/(Deep)Fake Example",
+        "description": "Over 30+ characters to choose from \u25ba\u25ba https://lipsynthesis.com/getstarted/Subscribe to see new videos and updates on LipSynthesis \u25ba\u25ba https://www.youtube.com/...",
+        "keywords": "deepfake, example, learn",
+        "og:site_name": "YouTube",
+        "og:url": "https://www.youtube.com/watch?v=3wVpVH0Wa6E",
+        "og:title": "Anderson Cooper, 4K Original/(Deep)Fake Example",
+        "og:image": "https://i.ytimg.com/vi/3wVpVH0Wa6E/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGBMgSih_MA8=&rs=AOn4CLDKTQ2x_MuAhW21Fnfl9FETyidXjw",
+        "og:image:width": "1280",
+        "og:image:height": "720",
+        "og:description": "Over 30+ characters to choose from \u25ba\u25ba https://lipsynthesis.com/getstarted/Subscribe to see new videos and updates on LipSynthesis \u25ba\u25ba https://www.youtube.com/...",
+        "al:ios:app_store_id": "544007664",
+        "al:ios:app_name": "YouTube",
+        "al:ios:url": "vnd.youtube://www.youtube.com/watch?v=3wVpVH0Wa6E&feature=applinks",
+        "al:android:url": "vnd.youtube://www.youtube.com/watch?v=3wVpVH0Wa6E&feature=applinks",
+        "al:web:url": "http://www.youtube.com/watch?v=3wVpVH0Wa6E&feature=applinks",
+        "og:type": "video.other",
+        "og:video:url": "https://www.youtube.com/embed/3wVpVH0Wa6E",
+        "og:video:secure_url": "https://www.youtube.com/embed/3wVpVH0Wa6E",
+        "og:video:type": "text/html",
+        "og:video:width": "1280",
+        "og:video:height": "720",
+        "al:android:app_name": "YouTube",
+        "al:android:package": "com.google.android.youtube",
+        "og:video:tag": "learn",
+        "fb:app_id": "87741124305",
+        "twitter:card": "player",
+        "twitter:site": "@youtube",
+        "twitter:url": "https://www.youtube.com/watch?v=3wVpVH0Wa6E",
+        "twitter:title": "Anderson Cooper, 4K Original/(Deep)Fake Example",
+        "twitter:description": "Over 30+ characters to choose from \u25ba\u25ba https://lipsynthesis.com/getstarted/Subscribe to see new videos and updates on LipSynthesis \u25ba\u25ba https://www.youtube.com/...",
+        "twitter:image": "https://i.ytimg.com/vi/3wVpVH0Wa6E/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGBMgSih_MA8=&rs=AOn4CLDKTQ2x_MuAhW21Fnfl9FETyidXjw",
+        "twitter:app:name:iphone": "YouTube",
+        "twitter:app:id:iphone": "544007664",
+        "twitter:app:name:ipad": "YouTube",
+        "twitter:app:id:ipad": "544007664",
+        "twitter:app:url:iphone": "vnd.youtube://www.youtube.com/watch?v=3wVpVH0Wa6E&feature=applinks",
+        "twitter:app:url:ipad": "vnd.youtube://www.youtube.com/watch?v=3wVpVH0Wa6E&feature=applinks",
+        "twitter:app:name:googleplay": "YouTube",
+        "twitter:app:id:googleplay": "com.google.android.youtube",
+        "twitter:app:url:googleplay": "https://www.youtube.com/watch?v=3wVpVH0Wa6E",
+        "twitter:player": "https://www.youtube.com/embed/3wVpVH0Wa6E",
+        "twitter:player:width": "1280",
+        "twitter:player:height": "720"
+      },
+      "security_headers": {
+        "https": true,
+        "strict_transport_security": true,
+        "content_security_policy": true,
+        "x_frame_options": true
+      },
+      "suspicious_elements": [],
+      "confidence": 70
+    },
+    "deepfake_detection": {
+      "status": "skipped",
+      "message": "No images provided or API key missing",
+      "confidence": 0
+    }
+  },
+  "final_assessment": {
+    "overall_risk_score": 0,
+    "risk_level": "low",
+    "confidence_in_assessment": 75,
+    "primary_risk_factors": [],
+    "secondary_risk_factors": [],
+    "user_recommendation": "\u2705 PROCEED WITH NORMAL CAUTION - No major red flags detected",
+    "technical_summary": "Basic risk calculation based on 4 tools",
+    "false_positive_likelihood": 15,
+    "method": "hybrid",
+    "ai_summary": "Based on the provided investigation data, here's a comprehensive risk assessment:\n\n```json\n{\n  \"overall_risk_score\": 20,\n  \"risk_level\": \"low\",\n  \"confidence_in_assessment\": 80,\n  \"primary_risk_factors\": [\n    \"The URL is related to deepfake content, which may pose a risk to users who are not aware "
+  }
+}
