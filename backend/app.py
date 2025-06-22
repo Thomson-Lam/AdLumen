@@ -28,6 +28,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+MONGO_URL = os.environ.get("MONGO_URL")  # Put your URI in .env
+client = MongoClient(MONGO_URL)
+db = client["ai_analysis_db"]
+results_collection = db["results"]   
+        
 class AnalysisRequest(BaseModel):
     url: str
 
@@ -83,11 +88,6 @@ async def analyze_url(request: AnalysisRequest):
         # """
         
         # TODO: implement Mongo query here 
-        MONGO_URL = os.environ.get("MONGO_URL")  # Put your URI in .env
-        client = MongoClient(MONGO_URL)
-        db = client["ai_analysis_db"]
-        results_collection = db["results"]   
-        
         cached = results_collection.find_one({"_id" : request.url}) 
         if cached:
             return cached
