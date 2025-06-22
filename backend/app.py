@@ -11,6 +11,7 @@ import time
 import random
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+from bs4 import BeautifulSoup
 
 # Load environment variables
 load_dotenv()
@@ -83,8 +84,16 @@ async def analyze_url(request: AnalysisRequest):
         raise HTTPException(status_code=500, detail=f"Failed to fetch URL. Received HTTP 500 from server.")
 
     # Build the prompt
+    soup = BeautifulSoup(html_content, "html.parser")
+    clean_text = soup.get_text(separator='\n')
+
+    # NOTE: truncate the text with a text limit
+    max = 7500 # cut it safe for 8000
+
+    clean_text = clean_text[:max]
+
     prompt = f"""
-    {html_content}
+    {clean_text}
 
     Extract all relevant information and return the result as a JSON object with the following keys:
     - url: the URL of the page
