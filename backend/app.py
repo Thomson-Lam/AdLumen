@@ -12,6 +12,7 @@ from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 import json
 from final_agent import scam_agent
+from pymongo import MongoClient
 
 # Load environment variables
 load_dotenv()
@@ -27,13 +28,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+MONGO_URL = os.environ.get("MONGO_URL")  # Put your URI in .env
+client = MongoClient(MONGO_URL)
+db = client["ai_analysis_db"]
+results_collection = db["results"]   
+        
 class AnalysisRequest(BaseModel):
     url: str
 
 @app.post("/analyze")
 async def analyze_url(request: AnalysisRequest):
-    
-    ##
+   ##
     try:
         print("Starting analyze endpoint")
         ##
@@ -82,6 +87,12 @@ async def analyze_url(request: AnalysisRequest):
         # Respond with only the number (no text).
         # """
         
+        # TODO: implement Mongo query here 
+        cached = results_collection.find_one({"_id" : request.url}) 
+        if cached:
+            return cached
+
+        
         ##
         import json
         try:
@@ -114,6 +125,27 @@ async def analyze_url(request: AnalysisRequest):
             "justification": analysis_result["justification"]
         }
         print(f"About to return: {response_data}")
+
+        # add to DB 
+        cached = results_collection.find_one({"_id": request.url})
+        # results_collection.update_one(response_data)
+ 
+        if cached:
+            results_collection.update_one(
+             {"_id": response_data["url"]},  # filter: find document where _id == url
+                {"$set": {
+                    "fraud_probability": response_data["fraud_probability"],
+                    "confidence_level": response_data["confidence_level"],
+                    "justification": response_data["justification"]
+                }})
+        else:
+            results_collection.insert_one({
+                "_id": response_data["url"],
+                "fraud_probability": response_data["fraud_probability"],
+                "confidence_level": response_data["confidence_level"],
+                "justification": response_data["justification"]
+            })
+
         return response_data
         
     except Exception as e:
