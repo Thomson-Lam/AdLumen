@@ -13,24 +13,27 @@ type Res  = {
   	justification: string;
 };
 
-function evalRisk(result: Res): "low" | "medium" | "high" {
-  if (result.confidence_level >= 8 || result.fraud_probability >= 70) {
-    return "high";
-  } else if (result.confidence_level >= 5 || result.fraud_probability >= 50) {
-    return "medium";
-  } else {
-    return "low";
-  }
-}
-
 export default function AdLumenScanner() {
   const [url, setUrl] = useState("")
   const [isScanning, setIsScanning] = useState(false)
   const [result, setResult] = useState<Res | null>(null);
   const [error, setError] = useState<string | null>(null); 
+  const [status, setStatus] = useState<"high" | "medium" | "low" | "">("");
+
+  async function evalRisk(result: Res) {
+    if (result.confidence_level * 10 >= 8 || result.fraud_probability * 100 >= 70) {
+       setStatus("high");
+       console.log("HIGH");
+    } else if (result.confidence_level * 10 >= 5 || result.fraud_probability * 100 >= 50) {
+       setStatus("medium");
+       console.log("MEDIUM");
+    } else {
+       setStatus("low");
+       console.log("LOW");
+    }
+  }
 
   const handleScan = async() => {
-	console.log("WORKING");
     //e.preventDefault();
     setIsScanning(true);
     setError(null);
@@ -43,8 +46,10 @@ export default function AdLumenScanner() {
         if (!response.ok) {
           throw new Error('Failed to fetch URL');
         } 
-	const post_res: Res = await response.json(); // TODO: Check if this works!
+	const post_res: Res = await response.json(); 
 	setResult(post_res);
+	console.log(post_res);
+	evalRisk(post_res);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
@@ -183,28 +188,28 @@ export default function AdLumenScanner() {
             {result && (
 		<div className="flex flex-col gap-y-1 justify-center items-center mt-5 w-full rounded-lg border bg-blue/60">
 			<div className="flex flex-row justify-between items-center p-4 w-full text-white">
-			<h2 className="text-xl font-bold">Security Risk: {evalRisk(result).toUpperCase()}</h2>
+			<h2 className="text-xl font-bold">Security Risk: {status.toUpperCase()}</h2>
 			
 			</div>
               		<div className="flex flex-row justify-between items-center p-4 w-full text-white border-t border-white">
 			<p className="font-bold">AI Confidence Level (out of 10):</p>
 			<p className={
-    				result.confidence_level >= 8
-      				? 'rounded-lg bg-red-700/30 text-red-700'
-      				: result.confidence_level >= 5
-      				? 'rounded-lg bg-yellow-700/30 text-yellow-700'
+    				result.confidence_level * 10 >= 8
+      				? 'rounded-lg bg-red-700/30 text-red-700 px-2'
+      				: result.confidence_level * 10 >= 5
+      				? 'rounded-lg bg-yellow-700/30 text-yellow-700 px-2'
       				: 'rounded-lg bg-green-700/30 text-green-300 px-2'}>
-    			{result.confidence_level}</p>
+    			{result.confidence_level * 10}</p>
               		</div>
 			<div className="flex flex-row justify-between items-center p-4 w-full text-white border-t border-white">
 				<p className="font-bold">Fraud Probability (out of 100):</p>
 				<p className={
-    					result.fraud_probability >= 70
-      					? 'rounded-lg bg-red-700/30 text-red-700'
-      					: result.fraud_probability >= 50
-      					? 'rounded-lg bg-yellow-700/30 text-yellow-700'
+    					result.fraud_probability * 100 >= 70
+      					? 'rounded-lg bg-red-700/30 text-red-700 px-2'
+      					: result.fraud_probability * 100 >= 50
+      					? 'rounded-lg bg-yellow-700/30 text-yellow-700 px-2'
       					: 'rounded-lg bg-green-700/30 text-green-300 px-2'}>
-    				{result.fraud_probability} %</p>
+    				{result.fraud_probability * 100} %</p>
               		</div>
 			<div className="flex flex-col items-center p-4 w-full text-white border-t border-white">
 				<h2 className="text-xl font-bold">Justification:</h2>
