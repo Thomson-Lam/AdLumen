@@ -52,3 +52,6 @@ export default tseslint.config({
   },
 })
 ```
+
+
+Improvements: shifting from chrome extension to native screen viewing
